@@ -139,6 +139,7 @@ export default {
     },
     // 获取文件
     getFile(e) {
+      // 拿到图片文件
       let file = e.target.files[0];
       // 1.判断图片大小不超过2m
       if (file.size > 2 * 1024 * 1024) {

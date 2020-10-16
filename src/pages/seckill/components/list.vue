@@ -11,7 +11,7 @@
       <el-table-column prop="title" label="活动名称" sortable width="120">
       </el-table-column>
 
-      <el-table-column prop="type" label="状态">
+      <el-table-column prop="type" label="状态" sortable width="100">
         <template slot-scope="scope">
           <el-button type="success" v-if="scope.row.status == 1"
             >启用</el-button
@@ -34,7 +34,7 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { reqBannerDelete } from "../../../utils/api";
+import { reqSeckillDelete } from "../../../utils/api";
 // 引进弹框
 import { successAlert, warningAlert } from "../../../utils/alert";
 export default {
@@ -45,17 +45,17 @@ export default {
   },
   computed: {
     ...mapGetters({
-      lists: "banner/lists",
+      lists: "speckill/lists",
     }),
   },
   methods: {
     ...mapActions({
-      reqListMenu: "banner/reqListMenu",
+      reqListMenu: "speckill/reqListMenu",
     }),
     // 删除事件
     del(id) {
       // 调取删除接口
-      reqBannerDelete(id).then((res) => {
+      reqSeckillDelete(id).then((res) => {
         if (res.data.code == 200) {
           successAlert(res.data.msg);
           // 再次渲染列表

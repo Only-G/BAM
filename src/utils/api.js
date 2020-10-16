@@ -415,6 +415,54 @@ export const reqGoodsEdit = (params) => {
         data: data
     })
 }
+// ==========限时秒杀===========
+// 添加
+export const reqSeckillAdd = (params) => {
+    return axios({
+        url: baseUrl + "/api/seckadd",
+        method: 'post',
+        data: qs.stringify(params)
+    })
+}
+// 列表
+export const rewSeckillList = () => {
+    return axios({
+        url: baseUrl + "/api/secklist",
+        method: 'get',
+    })
+}
+// 删除
+export const reqSeckillDelete = (id) => {
+    return axios({
+        url: baseUrl + "/api/seckdelete",
+        method: "post",
+        data: {
+            id
+        }
+    })
+}
+// 获取一条信息
+export const reqSeckillInfo = (id) => {
+    return axios({
+        url: baseUrl + "/api/seckinfo",
+        method: "get",
+        params: {
+            id
+        }
+    })
+}
+// 修改
+export const reqSeckillEdit = (params) => {
+    return axios({
+        url: baseUrl + "/api/seckedit",
+        method: 'post',
+        data: qs.stringify(params)
+    })
+}
+
+
+
+
 //登录
 export const reqLogin = (params) => {
     return axios({

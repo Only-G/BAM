@@ -10,6 +10,56 @@
           <el-input v-model="form.title"></el-input>
         </el-form-item>
 
+        <el-form-item label="活动期限">
+          <div class="block">
+            <el-date-picker
+              v-model="value"
+              type="datetimerange"
+              align="right"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :default-time="['12:00:00', '08:00:00']"
+            >
+            </el-date-picker>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="一级分类">
+          <el-select v-model="form.first_cateid" @change="changeFirst">
+            <el-option label="请选择" value="" disabled></el-option>
+            <el-option
+              v-for="item in listsCate"
+              :key="item.id"
+              :label="item.catename"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="二级分类">
+          <el-select v-model="form.second_cateid" @change="changeShopping">
+            <el-option label="请选择" value="" disabled></el-option>
+            <el-option
+              v-for="item in secondList"
+              :key="item.id"
+              :label="item.catename"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="商品">
+          <el-select v-model="form.goodsid">
+            <el-option label="请选择" value="" disabled></el-option>
+            <el-option
+              v-for="item in speckillList"
+              :key="item.id"
+              :label="item.goodsname"
+              :value="item.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="状态">
           <el-switch
             v-model="form.status"
@@ -32,7 +82,13 @@
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { reqBannerAdd, reqBannerInfo, reqBannerEdit } from "../../../utils/api";
+import {
+  reqSeckillAdd,
+  reqSeckillInfo,
+  reqSeckillEdit,
+  rewCateList,
+  reqGoodsList,
+} from "../../../utils/api";
 import { indexRoutes } from "../../../router/index";
 import { successAlert, warningAlert } from "../../../utils/alert";
 export default {
@@ -40,39 +96,69 @@ export default {
   components: {},
   data() {
     return {
-      dialogImageUrl: "",
-      dialogVisible: false,
-      disabled: false,
-      // 图片地址
-      imgUrl: "",
+      value: [],
       form: {
         title: "",
-        img: null,
+        begintime: "",
+        endtime: "",
+        first_cateid: "",
+        second_cateid: "",
+        goodsid: "",
         status: 1,
       },
+      // 二级分类
+      secondList: [],
+      // 商品
+      speckillList: [],
     };
   },
   computed: {
     ...mapGetters({
-      lists: "banner/lists",
+      // 分类list
+      listsCate: "cate/lists",
+      // 秒杀list
+      listsSpeckill: "speckill/lists",
+      // 商品管理
+      listsGoods: "goods/lists",
     }),
   },
   methods: {
-    handleRemove(file) {
-      console.log(file);
-    },
-    handlePictureCardPreview(file) {
-      this.dialogImageUrl = file.url;
-      this.dialogVisible = true;
-    },
-    handleDownload(file) {
-      console.log(file);
-    },
-
-    // end
     ...mapActions({
-      reqListMenu: "banner/reqListMenu",
+      reqListMenu: "cate/reqListMenu",
+      reqListSpeckill: "speckill/reqListMenu",
+      reqListGoods: "goods/reqListMenu",
     }),
+    // 一级事件
+    changeFirst() {
+      // 调取分类接口----展示二级分类
+      // rewCateList({ pid: this.form.first_cateid }).then((res) => {
+      //   this.secondList = res.data.list;
+      // });
+      this.form.second_cateid = "";
+      // 调用二级分类
+      this.getChangeFirst();
+    },
+    // 公共二级分类---查看一条数据的时候需要调用
+    getChangeFirst() {
+      let obj = this.listsCate.find(
+        (item) => item.id == this.form.first_cateid
+      );
+      this.secondList = obj.children;
+    },
+    // 二级分类点击事件---展示商品的信息
+    changeShopping() {
+      this.form.goodsid = "";
+      this.getChangeShopping();
+    },
+    // 公共商品展示
+    getChangeShopping() {
+      reqGoodsList({
+        fid: this.form.first_cateid,
+        sid: this.form.second_cateid,
+      }).then((res) => {
+        this.speckillList = res.data.list;
+      });
+    },
     // 取消事件
     cancel() {
       this.info.isShow = false;
@@ -81,14 +167,21 @@ export default {
     empty() {
       this.form = {
         title: "",
-        img: null,
+        begintime: "",
+        endtime: "",
+        first_cateid: "",
+        second_cateid: "",
+        goodsid: "",
         status: 1,
       };
-      this.imgUrl = "";
+      this.value = [];
     },
     // 添加事件
     menuAdd() {
-      reqBannerAdd(this.form).then((res) => {
+      //转换为时间戳返回给后台
+      this.form.begintime = this.value[0].getTime();
+      this.form.endtime = this.value[1].getTime();
+      reqSeckillAdd(this.form).then((res) => {
         if (res.data.code == 200) {
           // 成功
           successAlert(res.data.msg);
@@ -97,47 +190,28 @@ export default {
           // form表单取消事件
           this.cancel();
           // list数据刷新
-          this.reqListMenu();
+          this.reqListSpeckill();
         } else {
           warningAlert(res.data.msg);
         }
       });
     },
-    // 获取文件
-    getFile(e) {
-      let file = e.target.files[0];
-      // 1.判断图片大小不超过2m
-      if (file.size > 2 * 1024 * 1024) {
-        warningAlert("文件大小不能超过2M");
-        return;
-      }
-      // 判断后缀名
-      let imgExtArr = [".jpg", ".png", ".jpeg", ".gif", "webp"]; //例举后缀
-      let extname = file.name.slice(file.name.lastIndexOf(".")); //截取
-      //循环遍历每一项后缀名
-      if (!imgExtArr.some((item) => item == extname)) {
-        warningAlert("文件格式不正确");
-        return;
-      }
-      // URL.createObjectURL通过文件生成一个地址
-      this.imgUrl = URL.createObjectURL(file);
-      // 将文件保存在img中渲染
-      this.form.img = file;
-    },
-    // getFile2(e) {
-    //   let file = e.raw;
-    //   this.imgUrl = URL.createObjectURL(file);
-    //   this.form.img = file;
-    // },
     // 获取单独一条信息
     look(id) {
-      reqBannerInfo(id).then((res) => {
+      reqSeckillInfo(id).then((res) => {
         if (res.data.code == 200) {
           this.form = res.data.list;
+          // 显示时间----将时间戳转换为标准时间
+          this.value = [
+            new Date(parseInt(this.form.begintime)),
+            new Date(parseInt(this.form.endtime)),
+          ];
           // 获取单独一条数据的时候没有id所以得拿到id
           this.form.id = id;
-          // 拿到图片
-          this.imgUrl = this.$imgPre + this.form.img;
+          // 分别调取二级分类和商品
+          this.getChangeFirst();
+          this.getChangeShopping();
+          // 转换时间戳
         } else {
           warningAlert(res.data.msg);
         }
@@ -145,9 +219,10 @@ export default {
     },
     // 修改事件
     editors() {
+      this.form.begintime = this.value[0].getTime();
+      this.form.endtime = this.value[1].getTime();
       // 调取接口
-
-      reqBannerEdit(this.form).then((res) => {
+      reqSeckillEdit(this.form).then((res) => {
         if (res.data.code == 200) {
           successAlert(res.data.msg);
           this.empty();
@@ -165,7 +240,16 @@ export default {
       }
     },
   },
-  mounted() {},
+  mounted() {
+    // 分类内容加载
+    if (this.listsCate.length == 0) {
+      this.reqListMenu();
+    }
+    // 商品管理
+    if (this.listsGoods.length == 0) {
+      this.reqListGoods();
+    }
+  },
 };
 </script>
 <style lang="stylus" scoped>
