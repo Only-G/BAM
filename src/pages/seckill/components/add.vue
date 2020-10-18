@@ -176,8 +176,34 @@ export default {
       };
       this.value = [];
     },
+    checkSeckill() {
+      if (this.form.title == "") {
+        warningAlert("活动名称不能为空");
+        return false;
+      }
+      if (this.form.begintime == "" && this.form.endtime == "") {
+        warningAlert("活动期限不能为空");
+        return false;
+      }
+      if (this.form.first_cateid == "") {
+        warningAlert("一级分类不能为空");
+        return false;
+      }
+      if (this.form.second_cateid == "") {
+        warningAlert("二级分类不能为空");
+        return false;
+      }
+      if (this.form.goodsid == "") {
+        warningAlert("商品不能为空");
+        return false;
+      }
+      return true;
+    },
     // 添加事件
     menuAdd() {
+      if (!this.checkSeckill()) {
+        return;
+      }
       //转换为时间戳返回给后台
       this.form.begintime = this.value[0].getTime();
       this.form.endtime = this.value[1].getTime();

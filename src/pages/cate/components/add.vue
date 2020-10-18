@@ -102,6 +102,7 @@ export default {
     // 取消事件
     cancel() {
       this.info.isShow = false;
+      this.empty();
     },
     // 重置事件
     empty() {
@@ -113,8 +114,19 @@ export default {
       };
       this.imgUrl = "";
     },
+    // 判断
+    checkCate() {
+      if (this.form.catename == "") {
+        warningAlert("分类名称不能为空");
+        return false;
+      }
+      return true;
+    },
     // 添加事件
     menuAdd() {
+      if (!this.checkCate()) {
+        return;
+      }
       reqCateAdd(this.form).then((res) => {
         if (res.data.code == 200) {
           // 成功
@@ -150,8 +162,6 @@ export default {
       this.imgUrl = URL.createObjectURL(file);
       // 将文件保存在img中渲染
       this.form.img = file;
-      console.log("url", this.imgUrl);
-      console.log("formimg", this.form.img);
     },
     // element-ui
     // getFile2(e) {
@@ -177,6 +187,9 @@ export default {
     },
     // 修改事件
     editors() {
+      if (!this.checkCate()) {
+        return;
+      }
       // 调取接口
 
       reqCateEdit(this.form).then((res) => {

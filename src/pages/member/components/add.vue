@@ -63,6 +63,7 @@ export default {
     // 取消事件
     cancel() {
       this.info.isShow = false;
+      this.empty();
     },
     // 重置事件
     empty() {
@@ -74,22 +75,36 @@ export default {
         status: 1,
       };
     },
-    // 添加事件
-    menuAdd() {
-      reqManageAdd(this.form).then((res) => {
-        if (res.data.code == 200) {
-          // 成功
-          successAlert(res.data.msg);
-          // 清空表单
-          this.empty();
-          // form表单取消事件
-          this.cancel();
-          // list数据刷新
-          this.reqManageList();
-        } else {
-          warningAlert(res.data.msg);
+    // 判断
+    checkMember() {
+      if (this.form.nickname == "") {
+        warningAlert("昵称不能为空");
+        return false;
+      } else {
+        // 帐号是否合法(文字开头，允许字母数字下划线)
+        let reg = /^[\u4e00-\u9fa5]+[\u4E00-\u9FA5A-Za-z0-9_]+$/;
+        if (!reg.test(this.form.nickname)) {
+          warningAlert("昵称不正确");
+          return false;
         }
-      });
+      }
+      // 手机号
+      if (this.form.phone == "") {
+        warningAlert("手机号不能为空");
+        return false;
+      } else {
+        let tel = this.form.phone.length;
+        // 以1开头第二位可以是34578中任意一位，最后以10-9，9个整数结尾
+        let reg = /^[1][3,4,5,7,8][0-9]{9}$/;
+        if (tel > 11) {
+          warningAlert("手机号太长");
+          return false;
+        } else if (!reg.test(this.form.phone)) {
+          warningAlert("手机号不正确");
+          return false;
+        }
+      }
+      return true;
     },
     // 获取单独一条信息
     look(uid) {
@@ -104,6 +119,9 @@ export default {
     },
     // 修改事件
     editors() {
+      if (!this.checkMember()) {
+        return;
+      }
       // 调取接口
       reqMemberEdit(this.form).then((res) => {
         if (res.data.code == 200) {

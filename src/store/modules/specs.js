@@ -3,7 +3,7 @@ import { reqSpecsList, reqSpecsCount } from "../../utils/api"
 const state = {
     list: [],
     // 一页的数量
-    size: 3,
+    size: 2,
     // 页码
     page: 1,
     // 总数

@@ -107,6 +107,7 @@ export default {
     // 取消事件
     cancel() {
       this.info.isShow = false;
+      this.empty();
     },
     // 重置事件
     empty() {
@@ -119,8 +120,28 @@ export default {
         status: 1,
       };
     },
+    // 判断条件
+    judgeAdd() {
+      if (this.form.title == "") {
+        warningAlert("菜单名称不能为空");
+        return false;
+      }
+      if (this.form.pid !== 0 && this.form.url == "") {
+        warningAlert("菜单地址不能为空");
+        return false;
+      }
+      if (this.form.pid == 0 && this.form.icon == "") {
+        warningAlert("菜单图标不能为空");
+        return false;
+      }
+
+      return true;
+    },
     // 添加事件
     menuAdd() {
+      if (!this.judgeAdd()) {
+        return;
+      }
       reqMenuAdd(this.form).then((res) => {
         if (res.data.code == 200) {
           // 成功

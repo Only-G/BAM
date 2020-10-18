@@ -93,6 +93,7 @@ export default {
     // 取消事件
     cancel() {
       this.info.isShow = false;
+      this.empty();
     },
     // 重置事件
     empty() {
@@ -109,7 +110,7 @@ export default {
       if (!this.checkedData()) {
         return;
       }
-      // 转换 [{value:'s'},{value:'l'},{value:'xl'}]  ---map-->['s','l','xl']
+      // 转换 [{v:'s'},{v:'l'},{v:'xl'}]  ---map-->['s','l','xl']
       this.form.attrs = JSON.stringify(this.arr.map((item) => item.v));
       reqSpecsAdd(this.form).then((res) => {
         if (res.data.code == 200) {

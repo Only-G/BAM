@@ -120,8 +120,23 @@ export default {
       };
       this.imgUrl = "";
     },
+    // 判断
+    checkBanner() {
+      if (this.form.title == "") {
+        warningAlert("标题不能为空");
+        return false;
+      }
+      if (this.form.img == null) {
+        warningAlert("图片不能为空");
+        return false;
+      }
+      return true;
+    },
     // 添加事件
     menuAdd() {
+      if (!this.checkBanner()) {
+        return;
+      }
       reqBannerAdd(this.form).then((res) => {
         if (res.data.code == 200) {
           // 成功

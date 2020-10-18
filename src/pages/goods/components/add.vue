@@ -229,8 +229,47 @@ export default {
       this.secondCateList = [];
       this.specsList = [];
     },
+    // 判断
+    checkGoods() {
+      if (this.form.first_cateid == "") {
+        warningAlert("一级分类不能为空");
+        return false;
+      }
+      if (this.form.second_cateid == "") {
+        warningAlert("二级分类不能为空");
+        return false;
+      }
+      if (this.form.goodsname == "") {
+        warningAlert("商品名称不能为空");
+        return false;
+      }
+      if (this.form.price == "") {
+        warningAlert("商品价格不能为空");
+        return false;
+      }
+      if (this.form.specsid == "") {
+        warningAlert("商品规格不能为空");
+        return false;
+      }
+      if (this.form.specsattr == "") {
+        warningAlert("商品属性不能为空");
+        return false;
+      }
+      if (this.form.goodsname == "") {
+        warningAlert("商品名称不能为空");
+        return false;
+      }
+      if (this.form.price == "") {
+        warningAlert("商品价格不能为空");
+        return false;
+      }
+      return true;
+    },
     // 添加事件
     menuAdd() {
+      if (!this.checkGoods()) {
+        return;
+      }
       // console.log(this.form);
       // 添加之前转换商品规格属性
       // 相当于this.form.specsattr=JSON.stringify(this.form.specsattr),

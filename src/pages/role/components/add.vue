@@ -73,6 +73,7 @@ export default {
     // 取消事件
     cancel() {
       this.info.isShow = false;
+      this.empty();
     },
     // 重置事件
     empty() {
@@ -84,9 +85,21 @@ export default {
       //树形控件清空
       this.$refs.tree.setCheckedKeys([]);
     },
+    // 判断
+    checkRole() {
+      if (this.form.rolename == "") {
+        warningAlert("角色名称不能为空");
+        return false;
+      }
+
+      return true;
+    },
     // 添加事件
     menuAdd() {
-      // 将数组转化为字符串
+      if (!this.checkRole()) {
+        return;
+      }
+      // 将数组转化为字符串---获取到树形控件
       this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
       reqRoleAdd(this.form).then((res) => {
         if (res.data.code == 200) {

@@ -81,6 +81,7 @@ export default {
     // 取消事件
     cancel() {
       this.info.isShow = false;
+      this.empty();
     },
     // 重置事件
     empty() {
@@ -91,8 +92,48 @@ export default {
         status: 1,
       };
     },
+    // 判断
+    checkManage() {
+      if (this.form.roleid == "") {
+        warningAlert("所属角色不能为空");
+        return false;
+      }
+      if (this.form.username == "") {
+        warningAlert("用户名不能为空");
+        return false;
+      } else {
+        let n = this.form.username.length;
+        let reg = /^[a-zA-Z]\w{3,10}$/gi;
+        if (n > 6 || n <= 1) {
+          warningAlert("用户名长度不正确");
+          return false;
+        } else if (!reg.test(this.form.username)) {
+          warningAlert("用户名非法");
+          return false;
+        }
+      }
+      if (this.form.password == "") {
+        warningAlert("密码不能为空");
+        return false;
+      } else {
+        let passNum = this.form.password.length;
+        // 长度为3~10的仅由字母/数字/下划线组成的字符串
+        let reg = /^(\w|\d){3,10}$/;
+        if (passNum > 6 || passNum <= 1) {
+          warningAlert("密码长度不正确");
+          return false;
+        } else if (!reg.test(this.form.password)) {
+          warningAlert("密码格式不正确");
+          return false;
+        }
+      }
+      return true;
+    },
     // 添加事件
     menuAdd() {
+      if (!this.checkManage()) {
+        return;
+      }
       reqManageAdd(this.form).then((res) => {
         if (res.data.code == 200) {
           // 成功
@@ -133,6 +174,10 @@ export default {
     },
     // 修改事件
     editors() {
+      // 判断输入内容
+      if (!this.checkManage()) {
+        return;
+      }
       // 调取接口
 
       reqManageEdit(this.form).then((res) => {
